@@ -1,5 +1,7 @@
+'use strict';
+
 class HashMap {
-  // Why is there a length and a capacity
+  // Why is there a length and a capacity. Length indicates slots that are taken, but capacity indicates all slots both taken and empty
   constructor(initialCapacity = 8) {
     this.length = 0;
     this._slots = [];
@@ -10,7 +12,7 @@ class HashMap {
   get(key) {
     const index = this._findSlot(key);
     if (this._slots[index] === undefined) {
-      throw new Error("Key error");
+      throw new Error('Key error');
     }
     return this._slots[index].value;
   }
@@ -34,7 +36,7 @@ class HashMap {
     const index = this._findSlot(key);
     const slot = this._slots[index];
     if (slot === undefined) {
-      throw new Error("Key error");
+      throw new Error('Key error');
     }
     slot.deleted = true;
     this.length--;
@@ -44,11 +46,14 @@ class HashMap {
   _findSlot(key) {
     const hash = HashMap._hashString(key);
     const start = hash % this._capacity;
-
+    // | 2 | 5 | 15 | 10 |
+    //slot where 5 should be hashed is 1
+    //slot where 35 should be hashed is 3
     for (let i = start; i < start + this._capacity; i++) {
       // Why are we creating this index this way and not using the start variable
-      const index = i % this._capacity;
+      const index = i % this._capacity; //3 brings it back to the beginning to see if earlier spots are available if you go past start (only important when there's a collision after i++)
       const slot = this._slots[index];
+      //if its an empty slot or if this same value is already in there and its not deleted, then return the index
       if (slot === undefined || (slot.key == key && !slot.deleted)) {
         return index;
       }
@@ -87,18 +92,53 @@ HashMap.SIZE_RATIO = 3;
 
 const testMap = new HashMap();
 
-testMap.set("Hobbit", "Bilbo");
-testMap.set("Zit", "Bilbo");
-testMap.set("bit", "mike");
-testMap.set("Hobit", "Bilbo");
-testMap.set("bbit", "Bilbo");
-testMap.set("Hobbt", "Bilbo");
+testMap.set('Hobbit', 'Bilbo');
+testMap.set('Hobbit', 'Frodo');
+testMap.set('Human', 'Aragon');
+testMap.set('Elf', 'Legolas');
+testMap.set('Wizard', 'Gandolf');
+testMap.set('Maiar', 'The Necromancer');
+testMap.set('Maiar', 'Sauron');
+testMap.set('RingBearer', 'Gollum');
 
-console.log(testMap.get("bit"));
+// console.log(testMap.get('Maiar'));
+// console.log(testMap);
 
-function palindrome(str) {
-  // return true when we find a single valid palindrome
-  // When we come up with a permutation we store it
-  // Why store failed permutations?
-  //
+
+//trim string and lower case it and get rid of punctuation?
+function isPalindrome(str) {
+  //go through the string and count how many times each character occurs by storing that information in a hash map.
+  let hashmap = new HashMap();
+  let uniqueCharArr = [];
+  let count = 1;
+  for(let i =0; i < str.length; i++){
+    //first check if there's a value for this already in the hash map
+    try{
+      count = hashmap.get(str[i]);
+      count++;
+    }
+    catch(err){
+      count=1;
+      uniqueCharArr.push(str[i]);
+    }
+    hashmap.set(str[i],count);
+  }
+  //iterate though hash map - if all the values in the hash map are even, or if one is odd (but only 1), then its a palindrome. otherwise it isnt
+  let countOdds = 0;
+  for(let i =0; i < uniqueCharArr.length; i++){
+    if(hashmap.get(uniqueCharArr[i])%2===1){
+      countOdds++;
+    }
+  }
+  console.log('number of odds', countOdds);
+  return countOdds>1 ? false : true;
 }
+
+
+// A man, a plan, a canal. Panama
+// a = 10 m = 2 n=4 p = 2 l = 2 c = 1
+// dad
+// d=2 a = 1
+
+let str = 'amanaplanacanalpanama';
+console.log(isPalindrome(str));
