@@ -24,12 +24,16 @@ class HashMap {
     }
 
     const index = this._findSlot(key);
+    //added this for this.length
+    if (!this._slots[index]){
+      this.length++;
+    }
     this._slots[index] = {
       key,
       value,
       deleted: false
     };
-    this.length++;
+    // this.length++; //sometimes it adds when it shouldn't
   }
 
   remove(key) {
@@ -101,8 +105,8 @@ testMap.set('Maiar', 'The Necromancer');
 testMap.set('Maiar', 'Sauron');
 testMap.set('RingBearer', 'Gollum');
 
-// console.log(testMap.get('Maiar'));
-// console.log(testMap);
+console.log(testMap.get('Hobbit'));
+console.log(testMap);
 
 
 //trim string and lower case it and get rid of punctuation?
@@ -138,6 +142,7 @@ function isPalindrome(str) {
 // A man, a plan, a canal. Panama
 // a = 10 m = 2 n=4 p = 2 l = 2 c = 1
 // dad
+//dads
 // d=2 a = 1
 
 let str = 'amanaplanacanalpanama';
