@@ -1,5 +1,161 @@
 "use strict";
 
+class _Node {
+  constructor(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class _AdvancedNode {
+  constructor(value, next, previous) {
+    this.value = value;
+    this.next = next;
+    this.previous = previous;
+  }
+}
+
+class LinkedList {
+  constructor() {
+    this.head = null;
+  }
+
+  insertFirst(item) {
+    this.head = new _Node(item, this.head);
+  }
+
+  insertLast(item) {
+    if (this.head === null) {
+      this.insertFirst(item);
+    } else {
+      let tempNode = this.head;
+      while (tempNode.next !== null) {
+        tempNode = tempNode.next;
+      }
+      tempNode.next = new _Node(item, null);
+    }
+  }
+
+  //   insertBefore(item, ptr){
+  //     let currNode = this.head;
+  //     let prevNode = this.head;
+  //     while(currNode.next !== ptr){
+  //         prevNode = currNode;
+  //         currNode = currNode.next;
+  //     }
+  //     // currNode.next = new _Node(item, ptr);
+  //     prevNode.next = new _Node(item,ptr);
+  //   }
+
+  insertBefore(newItem, targetItem) {
+    // similar stuff
+    let tempNode = this.find(targetItem);
+    let currNode = this.head;
+    let prevNode = this.head;
+    while (currNode.next !== tempNode) {
+      prevNode = currNode;
+      currNode = currNode.next;
+    }
+    // currNode.next = new _Node(item, ptr);
+    currNode.next = new _Node(newItem, tempNode);
+  }
+
+  insertAfter(newItem, targetItem) {
+    let tempNode = this.find(targetItem);
+    let currNode = this.head;
+    while (currNode !== tempNode) {
+      currNode = currNode.next;
+    }
+    currNode.next = new _Node(newItem, tempNode.next);
+  }
+
+  insertHeadCycle(item) {
+    if (this.head === null) {
+      this.insertFirst(item);
+    } else {
+      let tempNode = this.head;
+      while (tempNode.next !== null) {
+        tempNode = tempNode.next;
+      }
+      tempNode.next = new _Node(item, this.head);
+    }
+  }
+
+  insertAt(newItem, index) {
+    let count = 0;
+    let currNode = this.head;
+    while (count !== index) {
+      currNode = currNode.next;
+      count++;
+    }
+    this.insertBefore(newItem, currNode.value);
+  }
+  findValue(key) {
+    let currNode = this.head;
+    if (!this.head) {
+      return null;
+    }
+    console.log("display the node: ", Object.keys(currNode.value));
+    while (Object.keys(currNode.value)[0] !== key) {
+      if (currNode.next === null) {
+        return null;
+      } else {
+        //otherwise keep looking
+        currNode = currNode.next;
+      }
+    }
+    console.log("current node : ", currNode.value[key]);
+    return currNode.value[key];
+  }
+  find(item) {
+    //start at the head
+    let currNode = this.head;
+    //if the list is empty
+    if (!this.head) {
+      return null;
+    }
+    //Check for the item
+    while (currNode.value !== item) {
+      //return null if end of the list
+      // and the item is not on the list
+      if (currNode.next === null) {
+        return null;
+      } else {
+        //otherwise keep looking
+        currNode = currNode.next;
+      }
+    }
+    //found it
+    return currNode;
+  }
+  remove(item) {
+    //if the list is empty
+    if (!this.head) {
+      return null;
+    }
+    //if the node to be removed is head, make the next node head
+    if (this.head.value === item) {
+      this.head = this.head.next;
+      return;
+    }
+    //start at the head
+    let currNode = this.head;
+    //keep track of previous
+    let previousNode = this.head;
+
+    while (currNode !== null && currNode.value !== item) {
+      //save the previous node
+      previousNode = currNode;
+      currNode = currNode.next;
+    }
+    if (currNode === null) {
+      console.log("Item not found");
+      return;
+    }
+    previousNode.next = currNode.next;
+  }
+}
+
 class HashMap {
   // Why is there a length and a capacity. Length indicates slots that are taken, but capacity indicates all slots both taken and empty
   constructor(initialCapacity = 8) {
@@ -199,6 +355,111 @@ function groupAnagram(arrOfStr) {
   return temp;
 }
 
-console.log(
-  groupAnagram(["east", "cars", "acre", "arcs", "teas", "eats", "race"])
-);
+// console.log(
+//   groupAnagram(["east", "cars", "acre", "arcs", "teas", "eats", "race"])
+// );
+
+// Separate Chaining
+/*
+Write a hash map implementation like the one you have done above using separate chaining as collision resolution mechanism.
+Test your hash map with the same value from before.
+*/
+
+class ChainHashMap {
+  //initialize properties
+  constructor(initialCapacity = 8) {
+    this.length = 0;
+    this._capacity = initialCapacity;
+    this._slots = [];
+    this.deleted = 0;
+  }
+
+  get(key) {
+    const index = this._findSlot(key);
+    if (this._slots[index] === undefined) {
+      throw new Error("Key error");
+    }
+    console.log(" Inside the get :", this._slots[index]);
+    return this._slots[index].findValue(key);
+  }
+
+  // go strait to start without iterating over the rest
+  // if start taken make it a linked list
+  // if already a list push
+
+  set(key, value) {
+    const loadRatio = (this.length + this._deleted + 1) / this._capacity;
+    if (loadRatio > HashMap.MAX_LOAD_RATIO) {
+      this._resize(this._capacity * HashMap.SIZE_RATIO);
+    }
+
+    const index = this._findSlot(key);
+    //added this for this.length
+    if (!this._slots[index]) {
+      this._slots[index] = new LinkedList();
+      this.length++;
+    }
+    this._slots[index].insertFirst({ [key]: value });
+  }
+
+  _findSlot(key) {
+    const hash = HashMap._hashString(key);
+    const start = hash % this._capacity;
+    // | 2 | 5 | 15 | 10 |
+    //slot where 5 should be hashed is 1
+    //slot where 35 should be hashed is 3
+    return start;
+    // for (let i = start; i < start + this._capacity; i++) {
+    //   // Why are we creating this index this way and not using the start variable
+    //   const index = i % this._capacity; //3 brings it back to the beginning to see if earlier spots are available if you go past start (only important when there's a collision after i++)
+    //   const slot = this._slots[index];
+    //   //if its an empty slot or if this same value is already in there and its not deleted, then return the index
+    //   if (slot === undefined || (slot.key == key && !slot.deleted)) {
+    //     return index;
+    //   }
+    // }
+  }
+  _resize(size) {
+    const oldSlots = this._slots;
+    this._capacity = size;
+    // Reset the length - it will get rebuilt as you add the items back
+    this.length = 0;
+    this._deleted = 0;
+    this._slots = [];
+
+    for (const slot of oldSlots) {
+      if (slot !== undefined && !slot.deleted) {
+        this.set(slot.key, slot.value);
+      }
+    }
+  }
+
+  static _hashString(string) {
+    let hash = 5381;
+    for (let i = 0; i < string.length; i++) {
+      // shift operator - check it out,  bitwise
+      hash = (hash << 5) + hash + string.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return hash >>> 0;
+  }
+  // get(key) {
+  //   const index = this._findSlot(key);
+  //   if (this._slots[index] === undefined) {
+  //     throw new Error("Key error");
+  //   }
+  //   return this._slots[index].value;
+  // }
+  //methods
+}
+
+const tempTestMap = new ChainHashMap();
+
+tempTestMap.set("dog", "lab");
+tempTestMap.set("dog 2", "poodle");
+tempTestMap.set("martha", "cookbook");
+tempTestMap.set("donny", "doglover");
+tempTestMap.set("dog", "mastif");
+
+console.log(tempTestMap.get("donny"));
+// console.log(tempTestMap);
