@@ -141,4 +141,37 @@ function isPalindrome(str) {
 // d=2 a = 1
 
 let str = 'amanaplanacanalpanama';
-console.log(isPalindrome(str));
+// console.log(isPalindrome(str));
+
+
+
+//Anagram grouping
+//sort each word and if it matches something else currently in hash table, then join them together into an array and push that into the hash table. the key would be the sorted word, the value will be an array with the strings
+//would it return a hash map or array?
+
+function sortString(str){
+  return str.split('').sort().join('');
+}
+
+function groupAnagram(arrOfStr){
+  let hashMap = new HashMap();
+
+  for(let i=0; i < arrOfStr.length; i++){
+    let sortedStr = sortString(arrOfStr[i]);
+    let groupedArr = [];
+
+    try{
+      groupedArr = hashMap.get(sortedStr);
+      groupedArr.push(arrOfStr[i]);
+    }
+    catch(err){
+      groupedArr.push(arrOfStr[i]);
+    }
+    hashMap.set(sortedStr,groupedArr);
+  }
+
+  //convert hashMap to an array?
+  return hashMap;
+}
+
+console.log(groupAnagram(['east', 'cars', 'acre', 'arcs', 'teas', 'eats', 'race']));
