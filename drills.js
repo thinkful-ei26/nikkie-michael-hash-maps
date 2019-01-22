@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 class HashMap {
   // Why is there a length and a capacity. Length indicates slots that are taken, but capacity indicates all slots both taken and empty
@@ -12,9 +12,30 @@ class HashMap {
   get(key) {
     const index = this._findSlot(key);
     if (this._slots[index] === undefined) {
-      throw new Error('Key error');
+      throw new Error("Key error");
     }
     return this._slots[index].value;
+  }
+
+  display() {
+    let output = [];
+    this._slots.forEach(item => {
+      console.log("item: ", item);
+      console.log(this._slots.length);
+      if (item !== undefined) {
+        // console.log(item.key);
+        output.push({ [item.key]: item.value });
+      }
+    });
+    return output;
+
+    // display the keys and values
+    // for (let i = 0; i < this._slots.length; i++) {
+    //   if (this._slots[i] !== undefined) {
+    //     console.log(`${this._slots[i].key}: `, this._slots[i].value);
+
+    //   }
+    // }
   }
 
   set(key, value) {
@@ -25,7 +46,7 @@ class HashMap {
 
     const index = this._findSlot(key);
     //added this for this.length
-    if (!this._slots[index]){
+    if (!this._slots[index]) {
       this.length++;
     }
     this._slots[index] = {
@@ -40,7 +61,7 @@ class HashMap {
     const index = this._findSlot(key);
     const slot = this._slots[index];
     if (slot === undefined) {
-      throw new Error('Key error');
+      throw new Error("Key error");
     }
     slot.deleted = true;
     this.length--;
@@ -96,18 +117,17 @@ HashMap.SIZE_RATIO = 3;
 
 const testMap = new HashMap();
 
-testMap.set('Hobbit', 'Bilbo');
-testMap.set('Hobbit', 'Frodo');
-testMap.set('Human', 'Aragon');
-testMap.set('Elf', 'Legolas');
-testMap.set('Wizard', 'Gandolf');
-testMap.set('Maiar', 'The Necromancer');
-testMap.set('Maiar', 'Sauron');
-testMap.set('RingBearer', 'Gollum');
+testMap.set("Hobbit", "Bilbo");
+testMap.set("Hobbit", "Frodo");
+testMap.set("Human", "Aragon");
+testMap.set("Elf", "Legolas");
+testMap.set("Wizard", "Gandolf");
+testMap.set("Maiar", "The Necromancer");
+testMap.set("Maiar", "Sauron");
+testMap.set("RingBearer", "Gollum");
 
-console.log(testMap.get('Hobbit'));
-console.log(testMap);
-
+// console.log(testMap.get("Hobbit"));
+// console.log(testMap);
 
 //trim string and lower case it and get rid of punctuation?
 function isPalindrome(str) {
@@ -115,29 +135,27 @@ function isPalindrome(str) {
   let hashmap = new HashMap();
   let uniqueCharArr = [];
   let count = 1;
-  for(let i =0; i < str.length; i++){
+  for (let i = 0; i < str.length; i++) {
     //first check if there's a value for this already in the hash map
-    try{
+    try {
       count = hashmap.get(str[i]);
       count++;
-    }
-    catch(err){
-      count=1;
+    } catch (err) {
+      count = 1;
       uniqueCharArr.push(str[i]);
     }
-    hashmap.set(str[i],count);
+    hashmap.set(str[i], count);
   }
   //iterate though hash map - if all the values in the hash map are even, or if one is odd (but only 1), then its a palindrome. otherwise it isnt
   let countOdds = 0;
-  for(let i =0; i < uniqueCharArr.length; i++){
-    if(hashmap.get(uniqueCharArr[i])%2===1){
+  for (let i = 0; i < uniqueCharArr.length; i++) {
+    if (hashmap.get(uniqueCharArr[i]) % 2 === 1) {
       countOdds++;
     }
   }
-  console.log('number of odds', countOdds);
-  return countOdds>1 ? false : true;
+  //console.log("number of odds", countOdds);
+  return countOdds > 1 ? false : true;
 }
-
 
 // A man, a plan, a canal. Panama
 // a = 10 m = 2 n=4 p = 2 l = 2 c = 1
@@ -145,38 +163,42 @@ function isPalindrome(str) {
 //dads
 // d=2 a = 1
 
-let str = 'amanaplanacanalpanama';
+let str = "amanaplanacanalpanama";
 // console.log(isPalindrome(str));
-
-
 
 //Anagram grouping
 //sort each word and if it matches something else currently in hash table, then join them together into an array and push that into the hash table. the key would be the sorted word, the value will be an array with the strings
 //would it return a hash map or array?
 
-function sortString(str){
-  return str.split('').sort().join('');
+function sortString(str) {
+  return str
+    .split("")
+    .sort()
+    .join("");
 }
 
-function groupAnagram(arrOfStr){
+function groupAnagram(arrOfStr) {
   let hashMap = new HashMap();
+  let resultArr = [];
 
-  for(let i=0; i < arrOfStr.length; i++){
+  for (let i = 0; i < arrOfStr.length; i++) {
     let sortedStr = sortString(arrOfStr[i]);
     let groupedArr = [];
 
-    try{
+    try {
       groupedArr = hashMap.get(sortedStr);
       groupedArr.push(arrOfStr[i]);
-    }
-    catch(err){
+    } catch (err) {
       groupedArr.push(arrOfStr[i]);
     }
-    hashMap.set(sortedStr,groupedArr);
+    hashMap.set(sortedStr, groupedArr);
   }
 
   //convert hashMap to an array?
-  return hashMap;
+  const temp = hashMap.display();
+  return temp;
 }
 
-console.log(groupAnagram(['east', 'cars', 'acre', 'arcs', 'teas', 'eats', 'race']));
+console.log(
+  groupAnagram(["east", "cars", "acre", "arcs", "teas", "eats", "race"])
+);
